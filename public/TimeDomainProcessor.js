@@ -1,4 +1,3 @@
-export const time_data = [];
 
 class TimeDomainProcessor extends AudioWorkletProcessor {
   process(inputs, outputs, parameters) {

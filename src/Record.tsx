@@ -2,31 +2,32 @@ import React, { Component } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { sleep } from './sound';
+import { DataRecorder } from './DataRecorder';
 
 // Register necessary Chart.js components
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 type RecordState = {
-  recording: boolean,
   graphing: boolean,
   microphone: boolean,
   freqData: Uint8Array,
-  recordData: Float32Array,
   analyser: AnalyserNode | undefined,
-  source: MediaStreamAudioSourceNode | undefined
+  source: MediaStreamAudioSourceNode | undefined,
+  recorder: DataRecorder
 };
 
 export class Record extends Component<{}, RecordState> {
 
   constructor(args: {}) {
     super(args);
-    this.state = {  recording: false,
+    this.state = {
                     microphone: false,
                     graphing: false,
                     freqData: new Uint8Array(128),
-                    recordData: new Float32Array(128),
                     analyser: undefined,
-                    source: undefined };
+                    source: undefined,
+                    recorder: new DataRecorder()
+                  };
   }
 
   componentDidUpdate(prevProps: {}, prevState: RecordState) {
@@ -50,7 +51,7 @@ export class Record extends Component<{}, RecordState> {
       const source = audioCtx.createMediaStreamSource(stream);
       source.connect(analyser);
       analyser.connect(TimeDomainNode);
-      analyser.fftSize = 2048;
+      analyser.fftSize = 1024;
       analyser.minDecibels = -80;
       analyser.smoothingTimeConstant = 0.3;
       const bufferLength = analyser.frequencyBinCount;
@@ -71,12 +72,18 @@ export class Record extends Component<{}, RecordState> {
   }
 
   toggleGraphing = (): void => {
-    this.setState((state) => ({ graphing: !state.graphing, microphone: (!this.state.graphing || this.state.recording)}));
+    this.setState((state) => ({ graphing: !state.graphing, microphone: (!this.state.graphing || this.state.recorder.getRecording())}));
   }
 
   toggleRecording = (): void => {
-    this.setState((state) => ({recording: !state.recording, microphone: (!this.state.recording || this.state.graphing)}))
-    
+    const recorder = this.state.recorder;
+    const isRecording = recorder.getRecording();
+
+    if (isRecording) {
+      recorder.stopRecording();
+    } else {
+      recorder.startRecording();
+    }
   }
 
   render(): React.ReactNode {
