@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import * as Tone from 'tone';
 import { stop_sound, play_sound,play_burst } from './sound';
-import { Record } from './Record';
+import { FrequencyRecorder } from './FrequencyRecorder';
+import { AudioRecorder } from 'react-audio-voice-recorder';
 
 type AppState = {
   osc: Tone.Oscillator,
@@ -27,7 +28,17 @@ export class App extends Component<{}, AppState> {
 
       <section>
         <header>Recording</header>
-        <Record></Record>
+        <AudioRecorder 
+          onRecordingComplete={this.addAudioElement}
+          audioTrackConstraints={{
+            noiseSuppression: true,
+            echoCancellation: true,
+          }} 
+          downloadOnSavePress={true}
+          downloadFileExtension="wav"
+          showVisualizer={true}
+        />
+        <FrequencyRecorder/>
       </section>
     </div>
   }
@@ -50,4 +61,12 @@ export class App extends Component<{}, AppState> {
       this.setState({sound_playing: false})
     }
   }
+
+  addAudioElement = (blob: Blob) => {
+    const url = URL.createObjectURL(blob);
+    const audio = document.createElement("audio");
+    audio.src = url;
+    audio.controls = true;
+    document.body.appendChild(audio);
+  };
 }
