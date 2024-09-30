@@ -20,6 +20,7 @@ export class App extends Component<{}, AppState> {
 
   render(): React.ReactNode {
     return <div>
+      
       <section>
         <header>Play Sound</header>
         <button onClick={this.doToggleSound}>toggle Sound</button>
@@ -31,8 +32,8 @@ export class App extends Component<{}, AppState> {
         <AudioRecorder 
           onRecordingComplete={this.addAudioElement}
           audioTrackConstraints={{
-            noiseSuppression: true,
-            echoCancellation: true,
+            noiseSuppression: false,
+            echoCancellation: false,
           }} 
           downloadOnSavePress={true}
           downloadFileExtension="wav"
