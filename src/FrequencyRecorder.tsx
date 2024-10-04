@@ -32,17 +32,22 @@ export class FrequencyRecorder extends Component<{}, RecordState> {
   }
 
   startGraphing = async (): Promise<void> => {
-    const constraints = { audio: true };
     const audioCtx = new AudioContext();
 
     try {
       const analyser = audioCtx.createAnalyser();
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          autoGainControl: false,
+          noiseSuppression: false,
+          }
+      });
       const source = audioCtx.createMediaStreamSource(stream);
       source.connect(analyser);
       analyser.fftSize = 1024;
       analyser.minDecibels = -80;
-      analyser.smoothingTimeConstant = 0.3;
+      analyser.smoothingTimeConstant = 0;
       const bufferLength = analyser.frequencyBinCount;
       const dataArray = new Uint8Array(bufferLength);
 
