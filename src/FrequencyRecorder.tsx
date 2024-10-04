@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { sleep } from './sound';
 
 // Register necessary Chart.js components
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -57,12 +56,14 @@ export class FrequencyRecorder extends Component<{}, RecordState> {
     }
   }
 
-  updateGraph = async (analyser: AnalyserNode, dataArray: Uint8Array): Promise<void> => {
-    while (this.state.graphing) {
+  updateGraph = (analyser: AnalyserNode, dataArray: Uint8Array): void => {
+    const itvl = setInterval(() => {
+      if (!this.state.graphing) {
+        clearInterval(itvl)
+      }
       analyser.getByteFrequencyData(dataArray);
       this.setState(() => ({ freqData: new Uint8Array(dataArray) }));
-      await sleep(50);
-    }
+    }, 50);
   }
 
   toggleGraphing = (): void => {

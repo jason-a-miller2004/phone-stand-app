@@ -5,8 +5,6 @@ import { App } from './App';
 // db level that sound will play at
 const volume = -10;
 
-export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
 /**
  * Takes in an oscillator and plays a constant sound.
  * @param component The current component.
@@ -32,9 +30,11 @@ export const stop_sound = (osc: Tone.Oscillator) => {
  */
 export const play_burst = async (osc: Tone.Oscillator, play_time: number) => {
   osc.volume.value = volume;
-  osc.start();
-  await sleep(play_time)
-  osc.stop();
+  osc.start()
+
+  setTimeout(() => {
+    osc.stop()
+  }, play_time);
 }
 
 /**
@@ -44,14 +44,14 @@ export const play_burst = async (osc: Tone.Oscillator, play_time: number) => {
  * @param play_time amount of time to play constant tone at
  * @param sleep_time amount of time to wait between bursts
  */
-export const play_constant_burst = async (component: App, osc: Tone.Oscillator, play_time: number, sleep_time: number) => {
-  osc.volume.value = volume;
-  while (component.state.sound_playing) {
-    await play_burst(osc, play_time);
-    await sleep(sleep_time);
-  }
+export const play_constant_burst = (component: App, osc: Tone.Oscillator, play_time: number, sleep_time: number) => {
+  const itvl = setInterval(() => {
+    if (!component.state.sound_playing) {
+      clearInterval(itvl);
+    }
+    play_burst(osc, play_time);
+  }, play_time + sleep_time)
 }
-
 /**
  * allows ios mobile devices (iphones) to initiailze sound in tone.js
  */
