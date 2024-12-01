@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as Tone from 'tone';
-import { play_sound, stop_sound, play_burst, play_constant_burst, initSound } from './sound';
+import { play_sound, stop_sound, play_constant_burst, initSound } from './sound';
 import { FrequencyRecorder } from './FrequencyRecorder';
 import { AudioRecorder } from 'react-audio-voice-recorder';
 
@@ -13,7 +13,7 @@ export class App extends Component<{}, AppState> {
   constructor(args: {}) {
     super(args);
 
-    this.state = {osc: new Tone.Oscillator(440, "square").toDestination(), sound_playing: false}
+    this.state = {osc: new Tone.Oscillator(18000, "square").toDestination(), sound_playing: false}
   }
 
   render(): React.ReactNode {
@@ -24,7 +24,6 @@ export class App extends Component<{}, AppState> {
       <section>
         <header>Play Sound</header>
         <button onClick={this.doToggleSound}>toggle Sound</button>
-        <button onClick={this.doOneSecBurst}>One sec burst</button>
         <button onClick={this.doConstantBurst}>const burst</button>
       </section>
 
@@ -59,19 +58,12 @@ export class App extends Component<{}, AppState> {
     }
   };
 
-  doOneSecBurst = async ():Promise<void> => {
-    if (!this.state.sound_playing) {
-      this.setState({sound_playing: true})
-      await play_burst(this.state.osc, 1000);
-      this.setState({sound_playing: false})
-    }
-  }
 
   doConstantBurst = () => {
     // First, toggle sound_playing to true if it isn't already
     if (!this.state.sound_playing) {
       this.setState({ sound_playing: true }, () => {
-        play_constant_burst(this, this.state.osc, 50, 50);
+        play_constant_burst(this);
       });
     } else {
       // If sound is playing, toggle it off

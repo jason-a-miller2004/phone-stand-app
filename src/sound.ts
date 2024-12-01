@@ -24,34 +24,20 @@ export const stop_sound = (osc: Tone.Oscillator) => {
 };
 
 /**
- * plays a constant sound for play_time length (ms) from osc object
- * @param osc oscillator object used to play sound to the system
- * @param play_time amount of time to play burst of sound for
- */
-export const play_burst = async (osc: Tone.Oscillator, play_time: number) => {
-  osc.volume.value = volume;
-  osc.start()
-
-  setTimeout(() => {
-    osc.stop()
-  }, play_time);
-}
-
-/**
- * plays a constant burst for play_time with sleep_time ms between bursts
+ * loads a file and plays it as sound_playing is true
  * @param component parent object to check if sound should be playing
- * @param osc oscillator object used to play sound to the system
- * @param play_time amount of time to play constant tone at
- * @param sleep_time amount of time to wait between bursts
  */
-export const play_constant_burst = (component: App, osc: Tone.Oscillator, play_time: number, sleep_time: number) => {
+export const play_constant_burst = (component: App) => {
+  const player = new Tone.Player("/sound_generator/chirp_tx.wav").toDestination();
+  player.autostart = true;
   const itvl = setInterval(() => {
     if (!component.state.sound_playing) {
+      player.stop()
       clearInterval(itvl);
     }
-    play_burst(osc, play_time);
-  }, play_time + sleep_time)
+  }, 50);
 }
+
 /**
  * allows ios mobile devices (iphones) to initiailze sound in tone.js
  */
